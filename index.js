@@ -37,10 +37,10 @@ app.post('/webhook', async (req, res) => {
     message = message.replace(/Value: .*?(Messages_behind=\d+)/, 'Value: $1')
                      .replace(/(Messages_behind=\d+)/g, '<strong>$1</strong>');
 
-    // Determine the type of alert and generate a unique ID
+    // Determine the type of alert and generate a unique ID or use the provided one
     const alertIdPrefix = message.toLowerCase().includes('firing') ? 'ALR' : 'RES';
-    const alertId = generateUniqueId(alertIdPrefix);
-    console.log('Generated Alert ID:', alertId);
+    const alertId = payload.alertId || generateUniqueId(alertIdPrefix); // Use provided alertId or generate a new one
+    console.log('Generated or Received Alert ID:', alertId);
 
     // Send an email with the filtered title and message, including the alert ID
     await sendEmail(alertId, title, message);
@@ -60,8 +60,8 @@ app.post('/webhook', async (req, res) => {
 
 // Function to generate unique alert ID with a random suffix
 function generateUniqueId(status) {
-  const timestamp = Date.now().toString(36);
-  const randomSuffix = Math.floor(Math.random() * 36).toString(36);
+  const timestamp = Date.now().toString(36); // Current timestamp converted to base 36
+  const randomSuffix = Math.floor(Math.random() * 36).toString(36); // Random suffix
   return `${status}-${timestamp}${randomSuffix}`;
 }
 
@@ -111,7 +111,7 @@ async function sendEmail(alertId, title, message) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Email sent successfully to all recipients. Alert ID: ${alertId}`);
+  console.log(`Email sent successfully to all recipients. Message ID: ${alertId}`);
 }
 
 // Function to create a work item in Azure DevOps
