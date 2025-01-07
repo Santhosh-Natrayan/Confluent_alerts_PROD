@@ -31,11 +31,28 @@ app.post('/webhook', async (req, res) => {
 
     // Modify the title by removing content inside parentheses
     let title = payload.title.replace(/\(.*\)/, '').trim();
-    
+
     // Extract and filter the message part from the payload
     let message = payload.message.split('Annotations:')[0];
     message = message.replace(/Value: .*?(Messages_behind=\d+)/, 'Value: $1')
                      .replace(/(Messages_behind=\d+)/g, '<strong>$1</strong>');
+
+    // Extract the 'summary' field from 'commonAnnotations'
+    let summary = '';
+    if (payload.commonAnnotations && payload.commonAnnotations.summary) {
+      summary = payload.commonAnnotations.summary.trim(); // Extract and trim the summary value
+      console.log('Extracted Summary:', summary); // Debug log for extracted summary
+    } else {
+      console.log('Summary not found in commonAnnotations:', payload.commonAnnotations); // Debug log if no summary found
+    }
+
+    // Get the status of the alert (assuming it's available in the payload)
+    const status = payload.status; // Example: 'firing' or 'resolved'
+
+    // Only append summary if the status is 'firing'
+    if (status === 'firing' && summary) {
+      message += `<br><strong>Summary:</strong> <span style="color: red;">${summary}</span>`; // Make only the summary content red
+    }
 
     // Determine the type of alert and generate a unique ID or use the provided one
     const alertIdPrefix = message.toLowerCase().includes('firing') ? 'ALR' : 'RES';
