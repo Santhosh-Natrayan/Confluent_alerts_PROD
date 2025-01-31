@@ -114,7 +114,8 @@ async function sendEmail(alertId, title, message) {
     process.env.EMAIL_TO_10,
     process.env.EMAIL_TO_11,
     process.env.EMAIL_TO_12,
-    process.env.EMAIL_TO_13
+    process.env.EMAIL_TO_13,
+    process.env.EMAIL_TO_14
   ].join(', ');
 
   const mailOptions = {
